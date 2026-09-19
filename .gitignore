@@ -3,3 +3,5 @@ _attic/
 src/
 web/dist/
 web/node_modules/
+.vercel
+.env*
