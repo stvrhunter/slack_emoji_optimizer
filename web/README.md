@@ -49,7 +49,7 @@ src/crop.js        manual crop editor
 src/starfield.js   the background, and the emoji flying through it
 src/inventory.js   the bag: IndexedDB + the ContainerFrame cell geometry
 src/main.js        wiring
-scripts/build-assets.mjs   copies art and emoji into public/
+scripts/build-assets.mjs   copies assets-source/ art and emoji into public/
 ```
 
 `scripts/build-assets.mjs` runs before every dev/build. Everything it produces is

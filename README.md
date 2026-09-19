@@ -1,4 +1,4 @@
-# slack emoji optimizer
+# Slack Emoji Optimizer
 
 Tooling + asset library for our Slack custom emoji.
 `slackmoji.sh` turns heavy originals into files that fit Slack's hard limits:
@@ -13,18 +13,17 @@ entirely in the browser.
 ```
 slackmoji.sh          the optimizer (see Usage)
 web/                  the same thing as a web page — see web/README.md
-emoji/                READY TO UPLOAD - every file verified against Slack limits
+assets-source/        organized UI, avatar, and Slack-ready emoji sources
 src/                  heavy originals (1.1 GB) - never upload these
 _attic/               duplicates + superseded passes, kept for reference
-ContainerFrame/       Warcraft bag art, used by web/
 ```
 
-The loose `.png`/`.gif` files in the root are the Warcraft UI parts the web page
-is built from — slots, arrows, castbar, the heretic, and the two logos.
+`assets-source/ui/` contains the Warcraft UI parts the web page is built from —
+slots, arrows, castbar, the heretic, inventory frames, and the two logos.
 `web/scripts/build-assets.mjs` copies them into `web/public/assets/ui/`.
 
-`emoji/` and `src/` share the same five packs, so an emoji's original is always at
-the matching path:
+`assets-source/emoji/` and `src/` share the same five packs, so an emoji's
+original is always at the matching path:
 
 | pack | what's in it | emoji | src |
 |---|---|---|---|
@@ -37,7 +36,7 @@ the matching path:
 ## Usage
 
 ```bash
-./slackmoji.sh src/team/work.gif -o emoji/team
+./slackmoji.sh src/team/work.gif -o assets-source/emoji/team
 ```
 
 Useful flags: `-s` pad to square (transparent), `-b COLOR` pad with a background,
@@ -51,9 +50,9 @@ Or open the web version:
 npm install --prefix web && npm run dev --prefix web
 ```
 
-Square crops read better in Slack's grid than letterboxed fits — `emoji/matrix`
-is a curated square-cropped pass, which is why its names are shorter and more
-descriptive than the source filenames next to them.
+Square crops read better in Slack's grid than letterboxed fits —
+`assets-source/emoji/matrix` is a curated square-cropped pass, which is why its
+names are shorter and more descriptive than the source filenames next to them.
 
 ## Recovered names
 
@@ -91,9 +90,9 @@ three unnamed `Comp` files in the monkey pack became `monkey-side-eye`,
 
 ## Audit, Sept 2026
 
-Every one of the 84 files in `emoji/` was re-checked against Slack's limits and
-all of them pass — largest 128,361 bytes, largest frame count exactly 50,
-nothing over 128×128. No re-runs were needed.
+Every one of the 84 files in `assets-source/emoji/` was re-checked against
+Slack's limits and all of them pass — largest 128,361 bytes, largest frame count
+exactly 50, nothing over 128×128. No re-runs were needed.
 
 Four bugs in `slackmoji.sh` were found and fixed:
 
@@ -117,8 +116,8 @@ The 50-frame ceiling logic was checked at boundary durations (5.00 s, 5.08 s,
 
 ## Known gaps
 
-`emoji/team/scorched-budget.gif` has **no original** — only the 128px version
-survived. Don't lose it.
+`assets-source/emoji/team/scorched-budget.gif` has **no original** — only the
+128px version survived. Don't lose it.
 
 These sources have no optimized output yet. The animated `.webp` among them used
 to crash the script and now works:
@@ -126,9 +125,9 @@ to crash the script and now works:
 ```bash
 ./slackmoji.sh src/animals/{chef-cat-alt.jpg,cursed-blurry-cat.jpg,ginger-cat.jpg} \
   src/animals/{chipi-chipi-chapa-chapa-cat.webp,thousand-yard-stare-cat-restoration.webp} \
-  -o emoji/animals
+  -o assets-source/emoji/animals
 ./slackmoji.sh src/misc/{crying-man.jpg,facepalm-monkey.jpg,man-profile.jpg,smiling-bald-man.jpg} \
-  -o emoji/misc
+  -o assets-source/emoji/misc
 ```
 
 ## _attic

@@ -1,11 +1,8 @@
-# Paths are anchored with a leading slash on purpose: a bare `src/` or `*.png`
-# would also match web/src/ and web/public/assets/ui/*.png, which the site needs.
+# Authoring assets and raw originals are not needed by the deployed web build.
+# Generated, deployment-ready copies are committed under web/public/.
 /src/
 /_attic/
-/emoji/
-/ContainerFrame/
-/*.png
-/*.gif
+/assets-source/
 /slackmoji.sh
 web/node_modules/
 web/dist/

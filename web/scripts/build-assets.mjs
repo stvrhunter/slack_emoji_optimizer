@@ -14,6 +14,8 @@ const run = promisify(execFile);
 const here = path.dirname(new URL(import.meta.url).pathname);
 const web = path.resolve(here, '..');
 const repo = path.resolve(web, '..');
+const source = path.join(repo, 'assets-source');
+const sourceUi = path.join(source, 'ui');
 const ui = path.join(web, 'public/assets/ui');
 const emojiOut = path.join(web, 'public/emoji');
 
@@ -41,25 +43,27 @@ async function copyIfChanged(from, to) {
   return true;
 }
 
-// --- 1. Warcraft UI art from the repo root -----------------------------------
+// --- 1. Warcraft UI art from assets-source/ ----------------------------------
 const UI_FILES = [
-  'UI-EmptySlot.png', 'UI-EmptySlot-White.png', 'UI-EmptySlot-Disabled.png',
-  'arrow-custom-1-d.png', 'arrow-custom-1-d-disabled.png',
-  'CastBar-Border.png', 'CastBar-Flash.png',
-  'Warcraft_III_-_Heretic.gif', 'replika-9-19-2026 (1).png',
-  'Slack-Emoji-Optimizer-9-19-2026-2.png',
+  ['empty-slot.png', 'UI-EmptySlot.png'],
+  ['empty-slot-white.png', 'UI-EmptySlot-White.png'],
+  ['empty-slot-disabled.png', 'UI-EmptySlot-Disabled.png'],
+  ['arrow.png', 'arrow-custom-1-d.png'],
+  ['arrow-disabled.png', 'arrow-custom-1-d-disabled.png'],
+  ['castbar-border.png', 'CastBar-Border.png'],
+  ['castbar-flash.png', 'CastBar-Flash.png'],
+  ['heretic.gif', 'Warcraft_III_-_Heretic.gif'],
+  ['replika-logo.png', 'replika-logo.png'],
+  ['title-logo.png', 'title-logo.png'],
 ];
 const BAGS = ['1x4', '1x4+2', '2x4', '2x4+2', '3x4', '3x4+2', '4x4', '4x4+2', '5x4'];
 
 console.log('assets: ui art');
-for (const f of UI_FILES) {
-  const dest = f.startsWith('replika') ? 'replika-logo.png'
-    : f.startsWith('Slack-Emoji') ? 'title-logo.png'
-    : f;
-  await copyIfChanged(path.join(repo, f), path.join(ui, dest));
+for (const [from, dest] of UI_FILES) {
+  await copyIfChanged(path.join(sourceUi, from), path.join(ui, dest));
 }
 for (const b of BAGS) {
-  await copyIfChanged(path.join(repo, `ContainerFrame/UI-Bag-${b}.png`), path.join(ui, `bag-${b}.png`));
+  await copyIfChanged(path.join(sourceUi, `bags/UI-Bag-${b}.png`), path.join(ui, `bag-${b}.png`));
 }
 
 // The source slot artwork is translucent even across its painted face (most
@@ -92,7 +96,7 @@ const still = path.join(ui, 'heretic-still.png');
 if (!(await exists(still))) {
   try {
     await run('ffmpeg', ['-y', '-loglevel', 'error', '-i',
-      path.join(repo, 'Warcraft_III_-_Heretic.gif'), '-frames:v', '1', still]);
+      path.join(sourceUi, 'heretic.gif'), '-frames:v', '1', still]);
     log('extracted heretic-still.png');
   } catch { log('SKIP heretic-still.png (no ffmpeg) — commit it from a machine that has one'); }
 }
@@ -106,12 +110,12 @@ await fs.copyFile(
 ).then(() => log('copied gifski_wasm_bg.wasm'), (e) => log('SKIP gifski wasm', String(e)));
 
 // --- 3b. GIF avatars for the bag's portrait ring ------------------------------
-// Same deal as the emoji: read from the repo when it's there, fall back to what
-// has already been copied, so a deployment without ../"GIF avatars" still works.
+// Same deal as the emoji: read from the authoring assets when they're present,
+// then fall back to the committed public copies on lightweight deployments.
 console.log('assets: avatars');
 const avatarOut = path.join(web, 'public/assets/avatars');
-const avatarSrc = (await exists(path.join(repo, 'GIF avatars')))
-  ? path.join(repo, 'GIF avatars')
+const avatarSrc = (await exists(path.join(source, 'avatars')))
+  ? path.join(source, 'avatars')
   : avatarOut;
 const avatars = [];
 if (await exists(avatarSrc)) {
@@ -125,14 +129,13 @@ await fs.writeFile(path.join(web, 'public/avatars-manifest.json'), JSON.stringif
 console.log(`   avatars: ${avatars.length}`);
 
 // --- 4. emoji library + manifest ---------------------------------------------
-// Reads from ../emoji when it's there, and from the already-copied public/emoji
-// when it isn't — .vercelignore keeps the 1.1 GB src/ tree out of deployments,
-// and the manifest must survive that.
+// Reads from assets-source/emoji when present, otherwise from the committed
+// public copies. Vercel excludes authoring assets, so the fallback must remain.
 console.log('assets: emoji library');
 const packs = ['team', 'matrix', 'primatheus', 'animals', 'misc'];
 const manifest = [];
 for (const pack of packs) {
-  const fromRepo = path.join(repo, 'emoji', pack);
+  const fromRepo = path.join(source, 'emoji', pack);
   const fromPublic = path.join(emojiOut, pack);
   const src = (await exists(fromRepo)) ? fromRepo : fromPublic;
   if (!(await exists(src))) continue;
@@ -144,6 +147,6 @@ for (const pack of packs) {
                     animated: name.toLowerCase().endsWith('.gif') });
   }
 }
-if (!manifest.length) throw new Error('no emoji found in ../emoji or public/emoji');
+if (!manifest.length) throw new Error('no emoji found in assets-source/emoji or public/emoji');
 await fs.writeFile(path.join(web, 'public/emoji-manifest.json'), JSON.stringify(manifest, null, 0));
 console.log(`   manifest: ${manifest.length} emoji across ${packs.length} packs`);
