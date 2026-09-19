@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slack Emoji Optimizer</title>
+<script>
+  // This installation is intentionally viewed at 85% in Safari. Chromium's
+  // 100% page zoom otherwise makes every pixel-sized workflow control 17.6%
+  // larger, even though the viewport-sized title already matches. Mark real
+  // desktop Chrome before first paint so CSS can normalize only that UI.
+  if (/\b(?:Chrome|Chromium)\//.test(navigator.userAgent) &&
+      !/\b(?:Edg|OPR)\//.test(navigator.userAgent)) {
+    document.documentElement.classList.add('chrome-ui-scale');
+  }
+</script>
+<link rel="icon" href="assets/ui/heretic-still.png">
+<link rel="stylesheet" href="src/styles/app.css">
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<div id="flyby"></div>
+
+<header>
+  <img id="title" src="assets/ui/title-logo.png" alt="Slack Emoji Optimizer">
+</header>
+
+<main>
+  <section class="bench">
+
+    <!-- 1-3: the drop slot -->
+    <div class="station">
+      <div class="slot" id="inSlot" tabindex="0" role="button"
+           aria-label="Drop an image, GIF or video here">
+        <img class="slot-frame" src="assets/ui/UI-EmptySlot-Disabled-Opaque.png" alt="">
+        <div class="slot-well">
+          <span class="slot-plus" aria-hidden="true">+</span>
+          <img id="inPreview" alt="">
+          <video id="inPreviewVideo" muted playsinline loop hidden></video>
+        </div>
+      </div>
+      <div class="chrome">
+        <p class="cap" id="inCap">drop or click<br><small>gif · png · jpg · webp · mp4</small></p>
+        <div class="fitpick" id="fitpick">
+          <button type="button" data-fit="fit" class="on" title="Keep the aspect ratio (slackmoji.sh default)">Fit</button>
+          <button type="button" data-fit="crop" title="Centre-crop to a square (-c)">Crop</button>
+          <button type="button" data-fit="custom" title="Choose a square crop area" disabled>Adjust</button>
+        </div>
+      </div>
+      <input type="file" id="file" accept="image/*,video/*" hidden>
+    </div>
+
+    <img class="arrow" id="arrowL" src="assets/ui/arrow-custom-1-d-disabled.png" alt="">
+
+    <!-- 5-6: the forge -->
+    <div class="station forge">
+      <div class="heretic">
+        <img id="hereticImg" src="assets/ui/heretic-still.png" alt="A Warcraft III heretic">
+      </div>
+      <div class="chrome">
+        <button type="button" id="start" class="wbtn" disabled>Start</button>
+        <div class="castbar" id="castbar" hidden>
+          <div class="castbar-fill" id="castFill"></div>
+          <img class="castbar-frame" src="assets/ui/CastBar-Border.png" alt="">
+          <span class="castbar-label" id="castLabel">casting…</span>
+        </div>
+      </div>
+    </div>
+
+    <img class="arrow" id="arrowR" src="assets/ui/arrow-custom-1-d-disabled.png" alt="">
+
+    <!-- 8: the result -->
+    <div class="station">
+      <div class="slot" id="outSlot">
+        <img class="slot-frame" src="assets/ui/UI-EmptySlot-Disabled-Opaque.png" alt="">
+        <div class="slot-well"><img id="outPreview" alt=""></div>
+      </div>
+      <div class="chrome">
+        <input type="text" id="emojiName" class="winput" placeholder="name it…" disabled
+               spellcheck="false" autocomplete="off">
+        <button type="button" id="download" class="wbtn" disabled>Download</button>
+        <p class="cap" id="outStats">&nbsp;</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 11: the bag — always on screen, empty slots and all -->
+<aside id="bag">
+  <div class="bag-frame">
+    <img id="bagArt" src="assets/ui/bag-1x4.png" alt="">
+    <img id="bagAvatar" alt="">
+    <div id="bagGrid"></div>
+  </div>
+  <div class="bag-row">
+    <p class="cap" id="bagCount">&nbsp;</p>
+    <div class="bag-tools">
+      <button type="button" id="saveAll" class="wbtn small">Save all</button>
+      <button type="button" id="clearBag" class="wbtn small">Empty</button>
+    </div>
+  </div>
+</aside>
+
+<div id="cropEditor" class="crop-editor" role="dialog" aria-modal="true"
+     aria-labelledby="cropTitle" hidden>
+  <section class="crop-panel">
+    <h2 id="cropTitle">Adjust crop</h2>
+    <p>Drag the square, resize a corner, or draw a new selection.</p>
+    <div id="cropStage" class="crop-stage">
+      <img id="cropImage" alt="Crop preview">
+      <video id="cropVideo" muted playsinline loop hidden></video>
+      <div id="cropSelection" class="crop-selection" hidden>
+        <span data-handle="nw"></span><span data-handle="ne"></span>
+        <span data-handle="sw"></span><span data-handle="se"></span>
+      </div>
+    </div>
+    <div class="crop-actions">
+      <button type="button" id="cropCancel" class="wbtn small">Cancel</button>
+      <button type="button" id="cropApply" class="wbtn small">Apply crop</button>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <img id="logo" src="assets/ui/replika-logo.png" alt="Replika">
+</footer>
+
+<!-- 13: fullscreen viewer -->
+<div id="lightbox" hidden>
+  <button type="button" id="lbClose" aria-label="Close">×</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+    <button type="button" id="lbDownload" class="wbtn">Download</button>
+  </figure>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

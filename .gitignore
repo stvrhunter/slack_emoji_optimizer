@@ -1,0 +1,5 @@
+.DS_Store
+_attic/
+src/
+web/dist/
+web/node_modules/
